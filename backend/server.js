@@ -30,16 +30,18 @@ app.get('/', (req, res) => {
       hotels: '/api/hotels',
       rooms: '/api/rooms',
       bookings: '/api/bookings',
-      users: '/api/users'
+      users: '/api/users',
+      flights: '/api/flights'
     }
   });
 });
 
-// Hotels Routes
+// API Routes
 app.use('/api/hotels', require('./routes/hotels'));
 app.use('/api/rooms', require('./routes/rooms'));
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/flights', require('./routes/flights'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
