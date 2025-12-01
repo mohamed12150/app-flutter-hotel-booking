@@ -1,20 +1,23 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hotel_booking/theme/color.dart';
 import 'package:hotel_booking/utils/data.dart';
 import 'package:hotel_booking/widgets/city_item.dart';
 import 'package:hotel_booking/widgets/feature_item.dart';
 import 'package:hotel_booking/widgets/notification_box.dart';
 import 'package:hotel_booking/widgets/recommend_item.dart';
+import 'package:hotel_booking/features/rooms/presentation/providers/rooms_provider.dart';
+import 'package:hotel_booking/features/notifications/presentation/providers/notifications_provider.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,6 +40,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _builAppBar() {
+    final notifCount = ref.watch(notificationsProvider);
     return Row(
       children: [
         Icon(
@@ -56,7 +60,7 @@ class _HomePageState extends State<HomePage> {
         ),
         const Spacer(),
         NotificationBox(
-          notifiedNumber: 1,
+          notifiedNumber: notifCount,
         )
       ],
     );
@@ -134,6 +138,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   _buildFeatured() {
+    final rooms = ref.watch(roomsProvider);
+    final items = rooms.featuredFiltered;
     return CarouselSlider(
       options: CarouselOptions(
         height: 300,
@@ -142,14 +148,11 @@ class _HomePageState extends State<HomePage> {
         viewportFraction: .75,
       ),
       items: List.generate(
-        features.length,
+        items.length,
         (index) => FeatureItem(
-          data: features[index],
+          data: items[index],
           onTapFavorite: () {
-            setState(() {
-              features[index]["is_favorited"] =
-                  !features[index]["is_favorited"];
-            });
+            // يمكن لاحقًا ربط الحالة بالمفضلة عبر Provider
           },
         ),
       ),
@@ -157,16 +160,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   _getRecommend() {
+    final rooms = ref.watch(roomsProvider);
+    final items = rooms.recommendedFiltered;
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(15, 5, 0, 5),
       scrollDirection: Axis.horizontal,
       child: Row(
         children: List.generate(
-          recommends.length,
+          items.length,
           (index) => Padding(
             padding: const EdgeInsets.only(right: 10),
             child: RecommendItem(
-              data: recommends[index],
+              data: items[index],
             ),
           ),
         ),
@@ -183,8 +188,14 @@ class _HomePageState extends State<HomePage> {
           cities.length,
           (index) => Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: CityItem(
-              data: cities[index],
+            child: GestureDetector(
+              onTap: () {
+                final cityName = cities[index]["name"] as String;
+                ref.read(roomsProvider.notifier).setFilterCity(cityName);
+              },
+              child: CityItem(
+                data: cities[index],
+              ),
             ),
           ),
         ),

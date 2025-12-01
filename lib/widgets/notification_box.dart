@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hotel_booking/theme/color.dart';
@@ -32,13 +32,15 @@ class NotificationBox extends StatelessWidget {
   }
 
   Widget _buildIconNotified() {
-    return Badge(
-      badgeColor: AppColor.actionColor,
-      padding: EdgeInsets.all(3),
-      position: BadgePosition.topEnd(top: -7, end: 0),
+    return badges.Badge(
+      position: badges.BadgePosition.topEnd(top: -7, end: 0),
+      badgeStyle: badges.BadgeStyle(
+        badgeColor: AppColor.actionColor,
+        padding: EdgeInsets.all(3),
+      ),
       badgeContent: Text(
-        '',
-        style: TextStyle(color: Colors.white),
+        notifiedNumber.toString(),
+        style: TextStyle(color: Colors.white, fontSize: 10),
       ),
       child: _buildIcon(),
     );
